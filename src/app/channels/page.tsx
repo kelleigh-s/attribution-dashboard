@@ -9,6 +9,8 @@ import {
   mockChannelPerformance,
   mockCampaigns,
 } from '@/lib/mock-data';
+import { buildAttributionComparison } from '@/lib/channel-attribution';
+import CSVUpload from '@/components/ui/CSVUpload';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -51,6 +53,7 @@ export default function ChannelsPage() {
   const [selectedChannelId, setSelectedChannelId] = useState('google-ads');
   const [sortKey, setSortKey] = useState<SortKey>('spend');
   const [sortAsc, setSortAsc] = useState(false);
+  const [showUpload, setShowUpload] = useState(false);
 
   // Current channel performance
   const channelPerf = mockChannelPerformance.find(
@@ -66,17 +69,11 @@ export default function ChannelsPage() {
     return total / mockChannelPerformance.length;
   }, []);
 
-  // Attribution model comparison data for selected channel
+  // Attribution model comparison data — channel-specific models
   const attributionData = useMemo(() => {
     if (!channelPerf) return [];
-    const base = channelPerf.conversions;
-    return [
-      { model: 'data-driven', conversions: base },
-      { model: 'last-click', conversions: Math.round(base * 1.1) },
-      { model: 'first-click', conversions: Math.round(base * 0.85) },
-      { model: 'linear', conversions: Math.round(base * 0.95) },
-    ];
-  }, [channelPerf]);
+    return buildAttributionComparison(selectedChannelId, channelPerf.conversions);
+  }, [channelPerf, selectedChannelId]);
 
   // Campaigns for selected channel
   const campaigns = useMemo(() => {
@@ -279,7 +276,7 @@ export default function ChannelsPage() {
             <h2 className="text-xl font-semibold text-[#434C53]">
               Attribution Model Comparison
             </h2>
-            <Tooltip content="Shows how many conversions this channel gets credit for under different attribution models. Data-Driven and Last Click use current data; First Click and Linear are Phase 2 estimates." />
+            <Tooltip content="Shows how many conversions this channel claims under each of its available attribution models. Each platform has different models and windows — this chart shows what the platform would report under each setting. Hover over a bar for details." />
           </div>
           <div className="bg-white rounded-lg border border-gray-100 shadow-sm p-6">
             <AttributionComparisonChart
@@ -496,6 +493,36 @@ export default function ChannelsPage() {
           </div>
         </section>
       )}
+
+      {/* ----------------------------------------------------------------- */}
+      {/* CSV Upload Fallback                                                */}
+      {/* ----------------------------------------------------------------- */}
+      <section>
+        <button
+          onClick={() => setShowUpload(!showUpload)}
+          className="flex items-center gap-2 text-sm font-medium text-[#006373] hover:text-[#006373]/80 transition-colors"
+        >
+          <svg
+            className={`w-4 h-4 transition-transform ${showUpload ? 'rotate-90' : ''}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+          Upload data manually (CSV)
+        </button>
+        {showUpload && (
+          <div className="mt-4">
+            <p className="text-xs text-gray-500 mb-3">
+              If the API connection is unavailable, export data from your ad platform as CSV and upload it here.
+              The dashboard will use your uploaded data in place of the API.
+            </p>
+            <CSVUpload channelId={selectedChannelId} />
+          </div>
+        )}
+      </section>
 
       {/* ----------------------------------------------------------------- */}
       {/* Phase 2 Note                                                       */}

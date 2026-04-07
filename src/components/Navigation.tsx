@@ -56,6 +56,15 @@ const navItems: NavItem[] = [
       </svg>
     ),
   },
+  {
+    label: 'Elevar',
+    href: '/elevar',
+    icon: (
+      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12.5h14M5 12.5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4.5a2 2 0 01-2 2M5 12.5a2 2 0 00-2 2V19a2 2 0 002 2h14a2 2 0 002-2v-4.5a2 2 0 00-2-2M12 8.5v.01M12 16v.01" />
+      </svg>
+    ),
+  },
 ];
 
 export default function Navigation() {

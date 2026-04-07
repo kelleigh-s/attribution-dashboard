@@ -37,7 +37,8 @@ export async function GET(request: NextRequest) {
       ].join(',');
 
       // Build URL with date params or preset
-      let url = `https://graph.facebook.com/v21.0/act_${adAccountId}/insights?access_token=${accessToken}&fields=${fields}&level=campaign`;
+      // adAccountId already includes the "act_" prefix from .env.local
+      let url = `https://graph.facebook.com/v21.0/${adAccountId}/insights?access_token=${accessToken}&fields=${fields}&level=campaign`;
 
       if (startDate && endDate) {
         url += `&time_range={"since":"${startDate}","until":"${endDate}"}`;
